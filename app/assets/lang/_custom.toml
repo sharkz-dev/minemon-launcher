@@ -1,0 +1,21 @@
+# Archivo de Personalización para Minemon Launcher
+# Servidor de Minecraft con Cobblemon
+
+[ejs.app]
+title = "Minemon Launcher"
+
+[ejs.landing]
+mediaGitHubURL = "#"
+mediaXURL = "#"
+mediaInstagramURL = "#"
+mediaYouTubeURL = "#"
+mediaDiscordURL = "https://discord.gg/minemon"
+
+[ejs.settings]
+sourceGithubLink = "#"
+supportLink = "https://discord.gg/minemon"
+
+[ejs.welcome]
+welcomeHeader = "BIENVENIDO A MINEMON"
+welcomeDescription = "Minemon es un servidor de Minecraft con el increíble mod Cobblemon. Embárcate en una aventura épica donde podrás capturar, entrenar y combatir con tus Pokémon favoritos en el mundo de Minecraft. Explora biomas únicos, descubre Pokémon legendarios y conviértete en el mejor entrenador. ¡Tu aventura Pokémon te espera!"
+welcomeDescCTA = "Estás a solo unos clics de convertirte en un Maestro Pokémon."
