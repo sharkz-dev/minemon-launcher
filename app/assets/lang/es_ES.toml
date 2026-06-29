@@ -204,7 +204,7 @@ javaDownloadPrepare = "Preparando Descarga de Java.."
 javaDownloadFailureTitle = "Error Durante la Descarga de Java"
 javaDownloadFailureText = "Revisa la consola (CTRL + Shift + i) para más detalles."
 javaRequired = "Java es Requerido<br>para Iniciar"
-javaRequiredMessage = 'Se requiere una instalación válida de Java {major} x64 para iniciar.<br><br>Por favor consulta nuestra <a href="https://github.com/dscalzi/HeliosLauncher/wiki/Java-Management#manually-installing-a-valid-version-of-java">Guía de Gestión de Java</a> para instrucciones sobre cómo instalar Java manualmente.'
+javaRequiredMessage = 'Se requiere una instalación válida de Java {major} x64 para iniciar.<br><br>Por favor consulta nuestra <a href="https://github.com/sharkz-dev/minemon-launcher/wiki/Java-Management#manually-installing-a-valid-version-of-java">Guía de Gestión de Java</a> para instrucciones sobre cómo instalar Java manualmente.'
 javaRequiredDismiss = "Entendido"
 javaRequiredCancel = "Volver"
 
@@ -227,7 +227,7 @@ downloadingFiles = "Descargando archivos.."
 errorDuringFileDownloadTitle = "Error Durante la Descarga de Archivos"
 preparingToLaunch = "Preparando para iniciar.."
 launchingGame = "Iniciando juego.."
-launchWrapperNotDownloaded = "El archivo principal, LaunchWrapper, no se descargó correctamente. Como resultado, el juego no puede iniciarse.<br><br>Para solucionar este problema, desactiva temporalmente tu software antivirus e inicia el juego nuevamente.<br><br>Si tienes tiempo, por favor <a href=\"https://github.com/dscalzi/HeliosLauncher/issues\">reporta un problema</a> y déjanos saber qué antivirus usas. Nos pondremos en contacto con ellos para resolver el problema."
+launchWrapperNotDownloaded = "El archivo principal, LaunchWrapper, no se descargó correctamente. Como resultado, el juego no puede iniciarse.<br><br>Para solucionar este problema, desactiva temporalmente tu software antivirus e inicia el juego nuevamente.<br><br>Si tienes tiempo, por favor <a href=\"https://github.com/sharkz-dev/minemon-launcher/issues\">reporta un problema</a> y déjanos saber qué antivirus usas. Nos pondremos en contacto con ellos para resolver el problema."
 doneEnjoyServer = "¡Listo! ¡Disfruta el servidor!"
 checkConsoleForDetails = "Por favor revisa la consola (CTRL + Shift + i) para más detalles."
 

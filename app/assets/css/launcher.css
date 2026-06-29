@@ -2858,17 +2858,17 @@ input:checked + .toggleSwitchSlider:before {
     height: 70px;
     width: auto;
     position: relative;
-    border: 2px solid white;
+    border: none;
     box-sizing: border-box;
-    border-radius: 50%;
+    border-radius: 0;
 }
 
 /* Logo container styles. */
 #image_seal_container {
     position: relative;
     height: 70px;
-    width: 70px;
-    border-radius: 50%;
+    width: auto;
+    border-radius: 0;
     margin-top: 50px;
 }
 
@@ -2876,22 +2876,17 @@ input:checked + .toggleSwitchSlider:before {
 #image_seal_container[update]{
     cursor: pointer
 }
-#image_seal_container[update]:before,
-#image_seal_container[update]:after {
-    cursor: pointer;
-    position: absolute;
-    content: '';
-    height: 100%;
-    width: 100%;
-    top: 0%;
-    left: 0%;
-    border-radius: 50%;
-    box-shadow: 0 0 15px #43c628;
-    animation: glow-grow 4s ease-out infinite;
-    background: rgba(0, 0, 0, 0.15);
+#image_seal_container[update] #image_seal {
+    animation: glow-pulse 2s ease-in-out infinite;
 }
-#image_seal_container[update]:before {
-    animation-delay: 2s;
+
+@keyframes glow-pulse {
+    0%, 100% {
+        filter: drop-shadow(0 0 5px #43c628) drop-shadow(0 0 10px #43c628);
+    }
+    50% {
+        filter: drop-shadow(0 0 15px #43c628) drop-shadow(0 0 25px #43c628) drop-shadow(0 0 35px #43c628);
+    }
 }
 
 /* Update available tooltip styles. */
@@ -2924,10 +2919,35 @@ input:checked + .toggleSwitchSlider:before {
     border-style: solid;
     border-color: transparent transparent rgb(0, 0, 0) transparent;
 }
+/* Tooltip deshabilitado - se usa #updateClickText en su lugar */
 #image_seal_container[update]:hover #updateAvailableTooltip {
-    visibility: visible;
-    opacity: 1;
-    transition-delay: 0s;
+    visibility: hidden;
+    opacity: 0;
+}
+
+/* Update click text - only visible when update available */
+#updateClickText {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 10px;
+    text-align: center;
+    font-family: 'Avenir Medium';
+    font-size: 14px;
+    color: #ffffff;
+    white-space: nowrap;
+    background-color: rgb(0, 0, 0);
+    padding: 5px 10px;
+    border-radius: 4px;
+}
+#updateClickText span {
+    font-size: 12px;
+    color: #aaaaaa;
+}
+#image_seal_container[update] #updateClickText {
+    display: block;
 }
 
 /* Update available animation. */
@@ -3448,6 +3468,28 @@ input:checked + .toggleSwitchSlider:before {
     display: flex;
     flex-direction: column;
     justify-content: center;
+}
+
+/* Modpack selection label */
+#modpack_selection_label {
+    position: absolute;
+    top: -18px;
+    right: -50px;
+    font-family: 'Avenir Medium';
+    font-size: 12px;
+    color: #ffcc00;
+    text-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    animation: glow-label 2s ease-in-out infinite;
+}
+@keyframes glow-label {
+    0%, 100% {
+        text-shadow: 0 0 5px rgba(255, 204, 0, 0.3);
+    }
+    50% {
+        text-shadow: 0 0 15px rgba(255, 204, 0, 0.8), 0 0 20px rgba(255, 204, 0, 0.4);
+    }
 }
 
 /* Button which opens the server selection view. */

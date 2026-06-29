@@ -7,14 +7,22 @@ copyright: 'Copyright 2024-2026 Minemon'
 asar: true
 compression: 'maximum'
 
+# Icono por defecto para todas las plataformas
+icon: 'build/icon'
+
 files:
   - '!{dist,.gitignore,.vscode,docs,dev-app-update.yml,.nvmrc,eslint.config.mjs}'
 
 extraResources:
   - 'libraries'
 
+directories:
+  buildResources: 'build'
+  output: 'dist'
+
 # Windows Configuration
 win:
+  icon: 'build/icon.ico'
   target:
     - target: 'nsis'
       arch: 'x64'
@@ -25,9 +33,13 @@ nsis:
   perMachine: false
   allowElevation: true
   allowToChangeInstallationDirectory: true
+  installerIcon: 'build/icon.ico'
+  uninstallerIcon: 'build/icon.ico'
+  installerHeaderIcon: 'build/icon.ico'
 
 # macOS Configuration
 mac:
+  icon: 'build/icon.png'
   target:
     - target: 'dmg'
       arch:
@@ -38,20 +50,16 @@ mac:
 
 # Linux Configuration
 linux:
+  icon: 'build/icon.png'
   target: 'AppImage'
   maintainer: 'Minemon'
   vendor: 'Minemon'
   synopsis: 'Launcher del servidor Minemon con Cobblemon'
-  description: 'Launcher personalizado para el servidor Minemon de Minecraft con el mod Cobblemon. Todos los mods, configuraciones y actualizaciones se manejan automaticamente.'
+  description: 'Launcher personalizado para el servidor Minemon de Minecraft con el mod Cobblemon.'
   category: 'Game'
-
-
-directories:
-  buildResources: 'build'
-  output: 'dist'
 
 # Auto-updater Configuration
 publish:
   - provider: github
-    owner: TU_USUARIO_GITHUB
-    repo: TU_REPOSITORIO
+    owner: sharkz-dev
+    repo: minemon-launcher

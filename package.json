@@ -1,11 +1,11 @@
 {
   "name": "minemonlauncher",
-  "version": "1.0.0",
+  "version": "1.1.6",
   "productName": "Minemon Launcher",
   "description": "Launcher para el servidor Minemon - Minecraft con Cobblemon",
   "author": "Minemon",
   "license": "UNLICENSED",
-  "homepage": "https://github.com/minemon/launcher",
+  "homepage": "https://github.com/sharkz-dev/minemon-launcher",
   "private": true,
   "main": "index.js",
 
@@ -47,57 +47,8 @@
     "eslint": "^9.39.2"
   },
 
-  "build": {
-    "appId": "es.minemon.launcher",
-    "productName": "Minemon Launcher",
-    "artifactName": "Minemon-Launcher-${version}-Setup.${ext}",
-    "asar": true,
-
-    "directories": {
-      "buildResources": "build",
-      "output": "dist"
-    },
-
-    "files": [
-      "**/*",
-      "!**/*.map",
-      "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md}",
-      "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}"
-    ],
-
-"win": {
-  "signAndEditExecutable": false,
-  "verifyUpdateCodeSignature": false,
-  "forceCodeSigning": false,
-  "target": [
-    {
-      "target": "nsis",
-      "arch": ["x64"]
-    }
-  ],
-  "icon": "build/icon.ico"
-}
-,
-
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
-      "createDesktopShortcut": true,
-      "createStartMenuShortcut": true,
-      "shortcutName": "Minemon Launcher"
-    },
-
-    "publish": [
-      {
-        "provider": "github",
-        "owner": "TU_USUARIO_GITHUB",
-        "repo": "minemon-launcher"
-      }
-    ]
-  },
-
   "repository": {
     "type": "git",
-    "url": "https://github.com/minemon/launcher.git"
+    "url": "https://github.com/sharkz-dev/minemon-launcher.git"
   }
 }

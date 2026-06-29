@@ -36,16 +36,62 @@ class ProcessBuilder {
         this.llDir = path.join(this.gameDir, 'liteloaderModList.json')
         this.libPath = path.join(this.commonDir, 'libraries')
 
+
         this.usingLiteLoader = false
         this.usingFabricLoader = false
         this.llPath = null
     }
-    
+
+    /**
+     * Copy default configuration files to the game directory if they don't exist.
+     * This allows setting default keybinds/settings for first-time users without
+     * overwriting their changes on subsequent launches.
+     *
+     * Priority order:
+     * 1. Server-specific: defaultConfigs/{serverId}/options.txt
+     * 2. Fallback: defaultConfigs/options.txt
+     */
+    copyDefaultConfigs() {
+        const defaultConfigsDir = path.join(__dirname, '..', 'defaultConfigs')
+        const serverId = this.server.rawServer.id
+
+        // List of config files to copy if they don't exist
+        const configFiles = ['options.txt']
+
+        for (const configFile of configFiles) {
+            const targetPath = path.join(this.gameDir, configFile)
+
+            // Skip if target already exists (respect user modifications)
+            if (fs.existsSync(targetPath)) {
+                continue
+            }
+
+            // Priority 1: Server-specific config
+            let sourcePath = path.join(defaultConfigsDir, serverId, configFile)
+
+            // Priority 2: Fallback to generic config
+            if (!fs.existsSync(sourcePath)) {
+                sourcePath = path.join(defaultConfigsDir, configFile)
+            }
+
+            // Copy if source exists
+            if (fs.existsSync(sourcePath)) {
+                try {
+                    fs.copyFileSync(sourcePath, targetPath)
+                    logger.info(`Copied default ${configFile} for server ${serverId}`)
+                } catch (err) {
+                    logger.warn(`Failed to copy default ${configFile}:`, err)
+                }
+            }
+        }
+    }
+
     /**
      * Convienence method to run the functions typically used to build a process.
      */
     build(){
         fs.ensureDirSync(this.gameDir)
+        this.copyDefaultConfigs()
         const tempNativePath = path.join(os.tmpdir(), ConfigManager.getTempNativeFolder(), crypto.pseudoRandomBytes(16).toString('hex'))
         process.throwDeprecation = true
         this.setupLiteLoader()
@@ -372,7 +418,7 @@ class ProcessBuilder {
 
         // Java Arguments
         if(process.platform === 'darwin'){
-            args.push('-Xdock:name=HeliosLauncher')
+            args.push('-Xdock:name=MinemonLauncher')
             args.push('-Xdock:icon=' + path.join(__dirname, '..', 'images', 'minecraft.icns'))
         }
         args.push('-Xmx' + ConfigManager.getMaxRAM(this.server.rawServer.id))
@@ -423,7 +469,7 @@ class ProcessBuilder {
 
         // Java Arguments
         if(process.platform === 'darwin'){
-            args.push('-Xdock:name=HeliosLauncher')
+            args.push('-Xdock:name=MinemonLauncher')
             args.push('-Xdock:icon=' + path.join(__dirname, '..', 'images', 'minecraft.icns'))
         }
         args.push('-Xmx' + ConfigManager.getMaxRAM(this.server.rawServer.id))

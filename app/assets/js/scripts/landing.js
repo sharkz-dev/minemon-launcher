@@ -100,6 +100,11 @@ function setLaunchEnabled(val){
 
 // Bind launch button
 document.getElementById('launch_button').addEventListener('click', async e => {
+    // Verificar si ya hay una instancia de Minecraft corriendo
+    if(proc != null) {
+        loggerLanding.info('Minecraft ya está en ejecución.')
+        return
+    }
     loggerLanding.info('Launching game..')
     try {
         const server = (await DistroAPI.getDistribution()).getServerById(ConfigManager.getSelectedServer())
@@ -608,22 +613,36 @@ async function dlAsync(login = true) {
             // Build Minecraft process.
             proc = pb.build()
 
+            // Deshabilitar botón de jugar y cambiar texto mientras el juego está corriendo
+            setLaunchEnabled(false)
+            document.getElementById('launch_button').innerHTML = 'INICIADO'
+
             // Bind listeners to stdout.
             proc.stdout.on('data', tempListener)
             proc.stderr.on('data', gameErrorListener)
 
             setLaunchDetails(Lang.queryJS('landing.dlAsync.doneEnjoyServer'))
 
+            // Listener para cuando el proceso se cierre
+            proc.on('close', (code, signal) => {
+                loggerLaunchSuite.info('Minecraft process closed.')
+                // Rehabilitar botón de jugar y restaurar texto
+                setLaunchEnabled(true)
+                document.getElementById('launch_button').innerHTML = 'JUGAR'
+                proc = null
+
+                // Shutdown Discord RPC if active
+                if(hasRPC){
+                    loggerLaunchSuite.info('Shutting down Discord Rich Presence..')
+                    DiscordWrapper.shutdownRPC()
+                    hasRPC = false
+                }
+            })
+
             // Init Discord Hook
             if(distro.rawDistribution.discord != null && serv.rawServer.discord != null){
                 DiscordWrapper.initRPC(distro.rawDistribution.discord, serv.rawServer.discord)
                 hasRPC = true
-                proc.on('close', (code, signal) => {
-                    loggerLaunchSuite.info('Shutting down Discord Rich Presence..')
-                    DiscordWrapper.shutdownRPC()
-                    hasRPC = false
-                    proc = null
-                })
             }
 
         } catch(err) {
