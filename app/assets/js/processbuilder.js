@@ -61,9 +61,28 @@ class ProcessBuilder {
         // Supports paths with subdirectories (e.g., 'config/xaerominimap.txt')
         const configFiles = [
             'options.txt',
-            // Add more config files here:
-            // 'config/xaerominimap.txt',
-            // 'config/xaeroworldmap.txt',
+            // Xaero's mods configs
+            'config/xaeropatreon.txt',
+            'config/xaerohud.txt',
+            'config/xaero/lib/common.cfg',
+            'config/xaero/lib/client.cfg',
+            'config/xaero/lib/profiles/default.cfg',
+            'config/xaero/lib/server_profiles/default.cfg',
+            'config/xaero/minimap/common.cfg',
+            'config/xaero/minimap/client.cfg',
+            'config/xaero/minimap/default_radar_categories_client.json',
+            'config/xaero/minimap/default_radar_categories_server.json',
+            'config/xaero/minimap/profiles/default.cfg',
+            'config/xaero/minimap/profiles/minemon.cfg',
+            'config/xaero/minimap/profiles/entity_radar_categories/default.cfg.json',
+            'config/xaero/minimap/profiles/entity_radar_categories/minemon.cfg.json',
+            'config/xaero/minimap/profiles/info_display_config/default.cfg.txt',
+            'config/xaero/minimap/profiles/info_display_config/minemon.cfg.txt',
+            'config/xaero/minimap/server_profiles/default.cfg',
+            'config/xaero/world-map/common.cfg',
+            'config/xaero/world-map/client.cfg',
+            'config/xaero/world-map/profiles/default.cfg',
+            'config/xaero/world-map/server_profiles/default.cfg',
         ]
 
         for (const configFile of configFiles) {
