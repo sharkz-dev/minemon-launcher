@@ -50,13 +50,21 @@ class ProcessBuilder {
      * Priority order:
      * 1. Server-specific: defaultConfigs/{serverId}/options.txt
      * 2. Fallback: defaultConfigs/options.txt
+     *
+     * Supports subdirectories (e.g., 'config/xaerominimap.txt')
      */
     copyDefaultConfigs() {
         const defaultConfigsDir = path.join(__dirname, '..', 'defaultConfigs')
         const serverId = this.server.rawServer.id
 
         // List of config files to copy if they don't exist
-        const configFiles = ['options.txt']
+        // Supports paths with subdirectories (e.g., 'config/xaerominimap.txt')
+        const configFiles = [
+            'options.txt',
+            // Add more config files here:
+            // 'config/xaerominimap.txt',
+            // 'config/xaeroworldmap.txt',
+        ]
 
         for (const configFile of configFiles) {
             const targetPath = path.join(this.gameDir, configFile)
@@ -77,6 +85,8 @@ class ProcessBuilder {
             // Copy if source exists
             if (fs.existsSync(sourcePath)) {
                 try {
+                    // Ensure target directory exists
+                    fs.ensureDirSync(path.dirname(targetPath))
                     fs.copyFileSync(sourcePath, targetPath)
                     logger.info(`Copied default ${configFile} for server ${serverId}`)
                 } catch (err) {
