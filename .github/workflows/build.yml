@@ -3,7 +3,7 @@ name: Build and Release
 on:
   push:
     tags:
-      - 'v*'  # Solo en tags de versión (v1.1.8, etc)
+      - 'v*'
 
 jobs:
   release:
@@ -24,7 +24,17 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      - name: Build and Publish
+      - name: Build Windows
+        run: npm run dist:win
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/*.exe
+            dist/*.yml
+            dist/*.blockmap
+          draft: false
+          prerelease: false
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npm run publish:win
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
