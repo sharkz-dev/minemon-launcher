@@ -171,6 +171,10 @@ function setDismissHandler(handler){
 
 /* Server Select View */
 
+// State for group navigation
+let currentServerGroups = null
+let currentGroupView = null // null = showing groups, string = showing servers in group
+
 document.getElementById('serverSelectConfirm').addEventListener('click', async () => {
     const listings = document.getElementsByClassName('serverListing')
     for(let i=0; i<listings.length; i++){
@@ -179,14 +183,16 @@ document.getElementById('serverSelectConfirm').addEventListener('click', async (
             updateSelectedServer(serv)
             refreshServerStatus(true)
             toggleOverlay(false)
+            currentGroupView = null // Reset view state
             return
         }
     }
     // None are selected? Not possible right? Meh, handle it.
     if(listings.length > 0){
-        const serv = (await DistroAPI.getDistribution()).getServerById(listings[i].getAttribute('servid'))
+        const serv = (await DistroAPI.getDistribution()).getServerById(listings[0].getAttribute('servid'))
         updateSelectedServer(serv)
         toggleOverlay(false)
+        currentGroupView = null // Reset view state
     }
 })
 
@@ -221,6 +227,14 @@ document.getElementById('accountSelectConfirm').addEventListener('click', async 
 // Bind server select cancel button.
 document.getElementById('serverSelectCancel').addEventListener('click', () => {
     toggleOverlay(false)
+    currentGroupView = null // Reset view state
+})
+
+// Bind server select back button.
+document.getElementById('serverSelectBack').addEventListener('click', async () => {
+    currentGroupView = null
+    await populateServerListings()
+    setServerListingHandlers()
 })
 
 document.getElementById('accountSelectCancel').addEventListener('click', () => {
@@ -232,7 +246,34 @@ document.getElementById('accountSelectCancel').addEventListener('click', () => {
 function setServerListingHandlers(){
     const listings = Array.from(document.getElementsByClassName('serverListing'))
     listings.map((val) => {
-        val.onclick = e => {
+        val.onclick = async e => {
+            // Check if this is a group listing
+            if(val.classList.contains('groupListing')) {
+                const groupKey = val.getAttribute('groupkey')
+                const group = currentServerGroups[groupKey]
+
+                // If standalone (single server without group), select it directly
+                if(group.standalone) {
+                    const cListings = document.getElementsByClassName('serverListing')
+                    for(let i=0; i<cListings.length; i++){
+                        if(cListings[i].hasAttribute('selected')){
+                            cListings[i].removeAttribute('selected')
+                        }
+                    }
+                    val.setAttribute('selected', '')
+                    // Store the server ID for confirmation
+                    val.setAttribute('servid', group.servers[0].rawServer.id)
+                    document.activeElement.blur()
+                } else {
+                    // Navigate into group
+                    currentGroupView = groupKey
+                    await populateServerListings()
+                    setServerListingHandlers()
+                }
+                return
+            }
+
+            // Regular server listing
             if(val.hasAttribute('selected')){
                 return
             }
@@ -267,13 +308,78 @@ function setAccountListingHandlers(){
     })
 }
 
-async function populateServerListings(){
-    const distro = await DistroAPI.getDistribution()
-    const giaSel = ConfigManager.getSelectedServer()
-    const servers = distro.servers
+/**
+ * Group servers by their 'group' field.
+ * Servers without a group are treated as their own group.
+ */
+function getServerGroups(servers) {
+    const groups = {}
+    for(const serv of servers) {
+        const groupName = serv.rawServer.group || null
+        if(groupName) {
+            if(!groups[groupName]) {
+                groups[groupName] = {
+                    name: groupName,
+                    icon: serv.rawServer.groupIcon || serv.rawServer.icon,
+                    description: serv.rawServer.groupDescription || '',
+                    servers: []
+                }
+            }
+            groups[groupName].servers.push(serv)
+        } else {
+            // Server without group - treat as standalone
+            groups['__standalone_' + serv.rawServer.id] = {
+                name: serv.rawServer.name,
+                icon: serv.rawServer.icon,
+                description: serv.rawServer.description,
+                servers: [serv],
+                standalone: true
+            }
+        }
+    }
+    return groups
+}
+
+/**
+ * Populate group listings (first level of selection).
+ */
+function populateGroupListings(groups, selectedServerId) {
+    const backBtn = document.getElementById('serverSelectBack')
+    backBtn.style.display = 'none'
+    document.getElementById('serverSelectHeader').textContent = 'Selecciona un Modpack'
+
     let htmlString = ''
-    for(const serv of servers){
-        htmlString += `<button class="serverListing" servid="${serv.rawServer.id}" ${serv.rawServer.id === giaSel ? 'selected' : ''}>
+    for(const groupKey of Object.keys(groups)) {
+        const group = groups[groupKey]
+        // Check if any server in this group is selected
+        const hasSelectedServer = group.servers.some(s => s.rawServer.id === selectedServerId)
+
+        htmlString += `<button class="serverListing groupListing" groupkey="${groupKey}" ${hasSelectedServer ? 'selected' : ''}>
+            <img class="serverListingImg" src="${group.icon}"/>
+            <div class="serverListingDetails">
+                <span class="serverListingName">${group.name}</span>
+                <span class="serverListingDescription">${group.description || (group.servers.length > 1 ? group.servers.length + ' versiones disponibles' : group.servers[0].rawServer.description)}</span>
+                <div class="serverListingInfo">
+                    <div class="serverListingVersion">${group.servers[0].rawServer.minecraftVersion}</div>
+                    ${group.servers.length > 1 ? `<div class="serverListingRevision">${group.servers.length} variantes</div>` : `<div class="serverListingRevision">${group.servers[0].rawServer.version}</div>`}
+                </div>
+            </div>
+        </button>`
+    }
+    document.getElementById('serverSelectListScrollable').innerHTML = htmlString
+}
+
+/**
+ * Populate server listings for a specific group (second level of selection).
+ */
+function populateGroupServerListings(groupName, servers, selectedServerId) {
+    const backBtn = document.getElementById('serverSelectBack')
+    backBtn.style.display = 'inline-block'
+    document.getElementById('serverSelectHeader').textContent = groupName
+
+    let htmlString = ''
+    for(const serv of servers) {
+        htmlString += `<button class="serverListing" servid="${serv.rawServer.id}" ${serv.rawServer.id === selectedServerId ? 'selected' : ''}>
             <img class="serverListingImg" src="${serv.rawServer.icon}"/>
             <div class="serverListingDetails">
                 <span class="serverListingName">${serv.rawServer.name}</span>
@@ -296,7 +402,59 @@ async function populateServerListings(){
         </button>`
     }
     document.getElementById('serverSelectListScrollable').innerHTML = htmlString
+}
 
+async function populateServerListings(){
+    const distro = await DistroAPI.getDistribution()
+    const selectedServerId = ConfigManager.getSelectedServer()
+    const servers = distro.servers
+
+    // Group servers
+    currentServerGroups = getServerGroups(servers)
+    const groupKeys = Object.keys(currentServerGroups)
+
+    // If only one group or showing specific group view
+    if(currentGroupView) {
+        // Show servers in selected group
+        const group = currentServerGroups[currentGroupView]
+        if(group) {
+            populateGroupServerListings(group.name, group.servers, selectedServerId)
+        }
+    } else if(groupKeys.length === 1 || groupKeys.every(k => currentServerGroups[k].standalone)) {
+        // Only standalone servers or single group - show servers directly (legacy behavior)
+        const backBtn = document.getElementById('serverSelectBack')
+        backBtn.style.display = 'none'
+        document.getElementById('serverSelectHeader').textContent = Lang.queryJS('overlay.serverSelectHeader')
+
+        let htmlString = ''
+        for(const serv of servers){
+            htmlString += `<button class="serverListing" servid="${serv.rawServer.id}" ${serv.rawServer.id === selectedServerId ? 'selected' : ''}>
+                <img class="serverListingImg" src="${serv.rawServer.icon}"/>
+                <div class="serverListingDetails">
+                    <span class="serverListingName">${serv.rawServer.name}</span>
+                    <span class="serverListingDescription">${serv.rawServer.description}</span>
+                    <div class="serverListingInfo">
+                        <div class="serverListingVersion">${serv.rawServer.minecraftVersion}</div>
+                        <div class="serverListingRevision">${serv.rawServer.version}</div>
+                        ${serv.rawServer.mainServer ? `<div class="serverListingStarWrapper">
+                            <svg id="Layer_1" viewBox="0 0 107.45 104.74" width="20px" height="20px">
+                                <defs>
+                                    <style>.cls-1{fill:#fff;}.cls-2{fill:none;stroke:#fff;stroke-miterlimit:10;}</style>
+                                </defs>
+                                <path class="cls-1" d="M100.93,65.54C89,62,68.18,55.65,63.54,52.13c2.7-5.23,18.8-19.2,28-27.55C81.36,31.74,63.74,43.87,58.09,45.3c-2.41-5.37-3.61-26.52-4.37-39-.77,12.46-2,33.64-4.36,39-5.7-1.46-23.3-13.57-33.49-20.72,9.26,8.37,25.39,22.36,28,27.55C39.21,55.68,18.47,62,6.52,65.55c12.32-2,33.63-6.06,39.34-4.9-.16,5.87-8.41,26.16-13.11,37.69,6.1-10.89,16.52-30.16,21-33.9,4.5,3.79,14.93,23.09,21,34C70,86.84,61.73,66.48,61.59,60.65,67.36,59.49,88.64,63.52,100.93,65.54Z"/>
+                                <circle class="cls-2" cx="53.73" cy="53.9" r="38"/>
+                            </svg>
+                            <span class="serverListingStarTooltip">${Lang.queryJS('settings.serverListing.mainServer')}</span>
+                        </div>` : ''}
+                    </div>
+                </div>
+            </button>`
+        }
+        document.getElementById('serverSelectListScrollable').innerHTML = htmlString
+    } else {
+        // Multiple groups - show group selection
+        populateGroupListings(currentServerGroups, selectedServerId)
+    }
 }
 
 function populateAccountListings(){
