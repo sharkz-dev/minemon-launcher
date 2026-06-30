@@ -62,6 +62,22 @@ if(!isDev){
                     }
                 })
                 showUpdateUI(info)
+                // Auto-show update popup
+                setOverlayContent(
+                    'Actualización Disponible',
+                    `La versión ${info.version} está lista para instalar. ¿Deseas actualizar ahora?`,
+                    'Instalar Ahora',
+                    'Más Tarde'
+                )
+                setOverlayHandler(() => {
+                    if(!isDev){
+                        ipcRenderer.send('autoUpdateAction', 'installUpdateNow')
+                    }
+                })
+                setDismissHandler(() => {
+                    toggleOverlay(false)
+                })
+                toggleOverlay(true, true)
                 break
             case 'update-not-available':
                 loggerAutoUpdater.info('No new update found.')
