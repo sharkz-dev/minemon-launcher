@@ -252,18 +252,13 @@ function setServerListingHandlers(){
                 const groupKey = val.getAttribute('groupkey')
                 const group = currentServerGroups[groupKey]
 
-                // If standalone (single server without group), select it directly
+                // If standalone (single server without group), select it directly and close
                 if(group.standalone) {
-                    const cListings = document.getElementsByClassName('serverListing')
-                    for(let i=0; i<cListings.length; i++){
-                        if(cListings[i].hasAttribute('selected')){
-                            cListings[i].removeAttribute('selected')
-                        }
-                    }
-                    val.setAttribute('selected', '')
-                    // Store the server ID for confirmation
-                    val.setAttribute('servid', group.servers[0].rawServer.id)
-                    document.activeElement.blur()
+                    const serv = (await DistroAPI.getDistribution()).getServerById(group.servers[0].rawServer.id)
+                    updateSelectedServer(serv)
+                    refreshServerStatus(true)
+                    toggleOverlay(false)
+                    currentGroupView = null
                 } else {
                     // Navigate into group
                     currentGroupView = groupKey
@@ -273,18 +268,13 @@ function setServerListingHandlers(){
                 return
             }
 
-            // Regular server listing
-            if(val.hasAttribute('selected')){
-                return
-            }
-            const cListings = document.getElementsByClassName('serverListing')
-            for(let i=0; i<cListings.length; i++){
-                if(cListings[i].hasAttribute('selected')){
-                    cListings[i].removeAttribute('selected')
-                }
-            }
-            val.setAttribute('selected', '')
-            document.activeElement.blur()
+            // Regular server listing - select directly and close overlay
+            const servId = val.getAttribute('servid')
+            const serv = (await DistroAPI.getDistribution()).getServerById(servId)
+            updateSelectedServer(serv)
+            refreshServerStatus(true)
+            toggleOverlay(false)
+            currentGroupView = null
         }
     })
 }
@@ -474,6 +464,8 @@ function populateAccountListings(){
 async function prepareServerSelectionList(){
     await populateServerListings()
     setServerListingHandlers()
+    // Ocultar botón confirmar - selección es directa al hacer click
+    document.getElementById('serverSelectConfirm').style.display = 'none'
 }
 
 function prepareAccountSelectionList(){

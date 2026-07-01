@@ -180,7 +180,8 @@ function updateSelectedServer(serv){
     if(getCurrentView() === VIEWS.settings){
         animateSettingsTabRefresh()
     }
-    setLaunchEnabled(serv != null)
+    // Solo habilitar si hay servidor seleccionado Y no hay juego corriendo
+    setLaunchEnabled(serv != null && proc == null)
 }
 // Real text is set in uibinder.js on distributionIndexDone.
 server_selection_button.innerHTML = '&#8226; ' + Lang.queryJS('landing.selectedServer.loading')
